@@ -3,16 +3,20 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"weather"
 )
 
 func main() {
-	f, err := os.Open("testdata/weather.json")
+	APIKey := os.Getenv("OPENWEATHERMAP_API_KEY")
+	URL := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=London,UK&appid=%s", APIKey)
+	resp, err := http.Get(URL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	w, err := weather.ParseJSON(f)
+	defer resp.Body.Close()
+	w, err := weather.ParseJSON(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}

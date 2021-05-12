@@ -19,7 +19,7 @@ func TestParseJSONReturnsWeatherStructFromJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := weather.Conditions{
-		Temp: 286.0,
+		Temp: 289.58,
 		Summary: "Clouds",
 	}
 	if !cmp.Equal(want, got) {
