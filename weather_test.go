@@ -1,6 +1,7 @@
 package weather_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -22,7 +23,7 @@ func TestParseJSONReturnsWeatherStructFromJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := weather.Conditions{
-		Temp: 289.58,
+		Temp:    289.58,
 		Summary: "Clouds",
 	}
 	if !cmp.Equal(want, got) {
@@ -30,16 +31,17 @@ func TestParseJSONReturnsWeatherStructFromJSON(t *testing.T) {
 	}
 }
 
-
 func TestGetSendsCorrectURL(t *testing.T) {
 	t.Parallel()
 	var w weather.Conditions
 	s := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Inside the handler func")
 	}))
 	APIKey := "dummy"
 	c, err := weather.NewClient(APIKey)
 	c.APIURL = s.URL
-	w, err = c.Get()
+	c.HTTPClient = s.Client()
+	w, err = c.Get(APIKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,5 +50,20 @@ func TestGetSendsCorrectURL(t *testing.T) {
 	}
 	if w.Temp == 0 {
 		t.Errorf("zero temperature: %+v", w)
+	}
+}
+
+func TestGetNonOKStatusReturnsError(t *testing.T) {
+	t.Parallel()
+	s := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	APIKey := "dummy"
+	c, err := weather.NewClient(APIKey)
+	c.APIURL = s.URL
+	c.HTTPClient = s.Client()
+	_, err = c.Get(APIKey)
+	if err == nil {
+		t.Fatal("want error, got nil")
 	}
 }
