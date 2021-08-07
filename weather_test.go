@@ -1,8 +1,7 @@
 package weather_test
 
 import (
-	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -36,12 +35,12 @@ func TestGetSendsCorrectURL(t *testing.T) {
 	t.Parallel()
 	var w weather.Conditions
 	s := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		data, err := ioutil.ReadFile("testdata/weather.json")
+		file, err := os.Open("testdata/weather.json")
 		if err != nil {
-			fmt.Println("Error: ", err)
-			return
+			t.Fatal(err)
 		}
-		fmt.Fprintln(w, string(data))
+		defer file.Close()
+		io.Copy(w, file)
 	}))
 	APIKey := "dummy"
 	c, err := weather.NewClient(APIKey)
