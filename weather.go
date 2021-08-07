@@ -39,8 +39,6 @@ func NewClient(APIKey string) (Client, error) {
 func ParseJSON(r io.Reader) (Conditions, error) {
 	var result owmAPIResponse
 	err := json.NewDecoder(r).Decode(&result)
-	//Decoder := json.NewDecoder(r) //
-	//Decoder.Decode(&result) //Decode into the pointer
 	if err != nil {
 		return Conditions{}, err
 	}
@@ -65,6 +63,7 @@ func (c Client) Get(APIKey string) (Conditions, error) {
 	}
 	w, err := ParseJSON(resp.Body)
 	if err != nil {
+		fmt.Printf("Parse JSON Error - %+v", w)
 		return Conditions{}, err
 	}
 	return w, nil
