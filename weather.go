@@ -63,7 +63,6 @@ func (c Client) Get(APIKey string) (Conditions, error) {
 	}
 	w, err := ParseJSON(resp.Body)
 	if err != nil {
-		fmt.Printf("Parse JSON Error - %+v", w)
 		return Conditions{}, err
 	}
 	return w, nil
