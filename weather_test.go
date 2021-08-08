@@ -17,6 +17,7 @@ func TestParseJSONReturnsWeatherStructFromJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer f.Close()
 	var got weather.Conditions
 	got, err = weather.ParseJSON(f)
 	if err != nil {
